@@ -23,11 +23,21 @@ export async function proxy(request: NextRequest) {
     if (!accessToken && refreshToken) {
       try {
         const response = await checkSession();
-        const newAccessToken = response.headers["set-cookie"];
-        const nextResponse = NextResponse.next();
-        if (newAccessToken) {
-          nextResponse.headers.set("set-cookie", newAccessToken.toString());
+        const setCookieHeader = response.headers["set-cookie"];
+
+        if (!setCookieHeader) {
+          return NextResponse.redirect(new URL("/sign-in", request.url));
         }
+
+        const nextResponse = NextResponse.next();
+        const cookies = Array.isArray(setCookieHeader)
+          ? setCookieHeader
+          : [setCookieHeader];
+
+        cookies.forEach((cookie) => {
+          nextResponse.headers.append("Set-Cookie", cookie);
+        });
+
         return nextResponse;
       } catch {
         return NextResponse.redirect(new URL("/sign-in", request.url));
