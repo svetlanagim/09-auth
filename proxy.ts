@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { checkSession } from "./lib/api/serverApi";
 
 const PRIVATE_ROUTES = ["/profile", "/notes"];
@@ -12,8 +13,9 @@ const isAuthRoute = (pathname: string) =>
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get("accessToken")?.value;
-  const refreshToken = request.cookies.get("refreshToken")?.value;
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+  const refreshToken = cookieStore.get("refreshToken")?.value;
 
   if (isPrivateRoute(pathname)) {
     if (!accessToken && !refreshToken) {
@@ -30,11 +32,11 @@ export async function proxy(request: NextRequest) {
         }
 
         const nextResponse = NextResponse.next();
-        const cookies = Array.isArray(setCookieHeader)
+        const cookieList = Array.isArray(setCookieHeader)
           ? setCookieHeader
           : [setCookieHeader];
 
-        cookies.forEach((cookie) => {
+        cookieList.forEach((cookie) => {
           nextResponse.headers.append("Set-Cookie", cookie);
         });
 
