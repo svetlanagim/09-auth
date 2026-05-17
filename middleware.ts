@@ -11,7 +11,7 @@ const isAuthRoute = (pathname: string) =>
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("token")?.value;
+  const token = request.cookies.get("accessToken")?.value;
 
   if (isPrivateRoute(pathname) && !token) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
