@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PRIVATE_ROUTES = ["/profile", "/notes"];
+const PRIVATE_ROUTES = ["/profile/:path*", "/notes/:path*"];
 const AUTH_ROUTES = ["/sign-in", "/sign-up"];
 
 const isPrivateRoute = (pathname: string) =>
@@ -9,15 +9,16 @@ const isPrivateRoute = (pathname: string) =>
 const isAuthRoute = (pathname: string) =>
   AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("accessToken")?.value;
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  if (isPrivateRoute(pathname) && !token) {
+  if (isPrivateRoute(pathname) && !accessToken && !refreshToken) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
-  if (isAuthRoute(pathname) && token) {
+  if (isAuthRoute(pathname) && (accessToken || refreshToken)) {
     return NextResponse.redirect(new URL("/profile", request.url));
   }
 
@@ -25,5 +26,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|icon.png).*)"],
+  matcher: ["/profile/:path*", "/notes/:path*", "/sign-in", "/sign-up"],
 };

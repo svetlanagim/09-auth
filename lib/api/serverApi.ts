@@ -38,8 +38,8 @@ export const getMe = async (): Promise<User> => {
   return data;
 };
 
-export const checkSession = async (): Promise<User | null> => {
+export const checkSession = async () => {
   const headers = await getHeaders();
-  const { data } = await api.get<User | null>("/auth/session", { headers });
-  return data;
+  const response = await api.get<User | null>("/auth/session", { headers });
+  return response;
 };

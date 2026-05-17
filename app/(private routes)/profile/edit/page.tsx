@@ -6,16 +6,18 @@ import Image from "next/image";
 import { getMe, updateMe } from "@/lib/api/clientApi";
 import { User } from "@/types/user";
 import css from "./EditProfilePage.module.css";
+import useAuthStore from "@/lib/store/authStore";
 
 export default function EditProfilePage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setLocalUser] = useState<User | null>(null);
   const [username, setUsername] = useState("");
   const router = useRouter();
+  const { setUser } = useAuthStore();
 
   useEffect(() => {
     const loadUser = async () => {
       const data = await getMe();
-      setUser(data);
+      setLocalUser(data);
       setUsername(data.username);
     };
     loadUser();
@@ -23,7 +25,8 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await updateMe({ username });
+    const updatedUser = await updateMe({ username });
+    setUser(updatedUser);
     router.push("/profile");
   };
 
