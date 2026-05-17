@@ -5,7 +5,7 @@ import css from "./NoteDetails.client.module.css";
 
 import { useParams } from "next/navigation";
 
-import { fetchNoteById } from "@/lib/api";
+import { fetchNoteById } from "@/lib/api/clientApi";
 
 type Params = {
   id: string;
