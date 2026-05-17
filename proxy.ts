@@ -9,7 +9,7 @@ const isPrivateRoute = (pathname: string) =>
 const isAuthRoute = (pathname: string) =>
   AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("accessToken")?.value;
 
